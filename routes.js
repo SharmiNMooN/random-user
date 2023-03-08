@@ -189,7 +189,34 @@ router.patch("/user/bulk-update", async (req,res)=>{
 })
 
 router.delete("/user/delete", async (req,res)=>{
+    try {
+        const userId = req.body.userId;
+        const filePath = 'user.json';
+        if (!userId) {
+            return res.status(400).send({
+                success: false,
+                message: 'userId required',
+            })
+        }
 
+        const allUsers = JSON.parse(fs.readFileSync(filePath, {
+            encoding: 'utf-8'
+        }));
+        fs.writeFileSync(filePath, JSON.stringify(allUsers.filter(user => user.id !== userId)));
+        return res.send({
+            success: true,
+            message: 'user deleted successfully',
+        })
+
+
+    } catch (e) {
+        console.log(e)
+        return res.status(500).send({
+            success: false,
+            message: 'An error occur',
+            data: e
+        })
+    }
 })
 
 
