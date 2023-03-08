@@ -14,6 +14,16 @@ const userSchema = joi.object({
 const router = express.Router();
 
 router.get("/user/random", async (req,res)=>{
+    const filePath = 'user.json';
+    const allUsers = JSON.parse(fs.readFileSync(filePath, {
+        encoding: 'utf-8'
+    }));
+    const randomIndex = Math.floor(Math.random() * ((allUsers.length - 1) + 1));
+    return res.send({
+        success: true,
+        message: "Random user fetch successfully",
+        data: allUsers[randomIndex],
+    });
 
 })
 
