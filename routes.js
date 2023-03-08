@@ -15,8 +15,17 @@ const updateUserSchema = joi.object({
     contact: joi.string(),
     address: joi.string(),
     photoUrl: joi.string(),
+});
 
-})
+const bulkUpdateUserSchema = joi.array().items(joi.object({
+    id: joi.number().required(),
+    name: joi.string(),
+    gender: joi.string(),
+    contact: joi.string(),
+    address: joi.string(),
+    photoUrl: joi.string(),
+
+}));
 
 
 
@@ -132,7 +141,51 @@ router.patch("/user/update", async (req,res)=>{
 })
 
 router.patch("/user/bulk-update", async (req,res)=>{
+    try {
+        const reqUsers = req.body;
+        await bulkUpdateUserSchema.validateAsync(reqUsers);
+        const filePath = 'user.json';
 
+        const allUsers = JSON.parse(fs.readFileSync(filePath, {
+            encoding: 'utf-8'
+        }));
+
+        reqUsers.map(payload => {
+            const userIndex = allUsers.findIndex(u => u.id === payload.id);
+            if (userIndex > -1) {
+                if (payload.name) {
+                    allUsers[userIndex].name = payload.name;
+                }
+                if (payload.address) {
+                    allUsers[userIndex].address = payload.address;
+                }
+                if (payload.contact) {
+                    allUsers[userIndex].contact = payload.contact;
+                }
+                if (payload.gender) {
+                    allUsers[userIndex].gender = payload.gender;
+                }
+                if (payload.photoUrl) {
+                    allUsers[userIndex].photoUrl = payload.photoUrl;
+                }
+
+            }
+        });
+        fs.writeFileSync(filePath, JSON.stringify(allUsers));
+        return res.send({
+            success: true,
+            message: 'bulk updated successfully',
+        })
+
+
+    } catch (e) {
+        console.log(e)
+        return res.status(500).send({
+            success: false,
+            message: 'An error occur',
+            data: e
+        })
+    }
 })
 
 router.delete("/user/delete", async (req,res)=>{
