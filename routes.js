@@ -28,7 +28,15 @@ router.get("/user/random", async (req,res)=>{
 })
 
 router.get("/user/all", async (req,res)=>{
-
+    const filePath = 'user.json';
+    const allUsers = JSON.parse(fs.readFileSync(filePath, {
+        encoding: 'utf-8'
+    }));
+    return res.send({
+        success: true,
+        message: "All user fetch successfully",
+        data: allUsers,
+    });
 })
 router.post("/user/save", async (req,res)=>{
      try {
