@@ -1,6 +1,8 @@
 const express = require('express');
 const joi = require('joi');
 const fs = require('fs');
+const path = require('path');
+
 const userSchema = joi.object({
     name: joi.string().required(),
     gender: joi.string().required(),
@@ -32,7 +34,7 @@ const bulkUpdateUserSchema = joi.array().items(joi.object({
 const router = express.Router();
 
 router.get("/user/random", async (req,res)=>{
-    const filePath = 'user.json';
+    const filePath =path.join(__dirname, 'user.json');
     const allUsers = JSON.parse(fs.readFileSync(filePath, {
         encoding: 'utf-8'
     }));
@@ -46,7 +48,7 @@ router.get("/user/random", async (req,res)=>{
 })
 
 router.get("/user/all", async (req,res)=>{
-    const filePath = 'user.json';
+    const filePath =path.join(__dirname, 'user.json');
     const allUsers = JSON.parse(fs.readFileSync(filePath, {
         encoding: 'utf-8'
     }));
@@ -59,7 +61,7 @@ router.get("/user/all", async (req,res)=>{
 router.post("/user/save", async (req,res)=>{
      try {
          await userSchema.validateAsync(req.body);
-         const filePath = 'user.json';
+         const filePath =path.join(__dirname, 'user.json');
          const user = req.body;
          const allUsers = JSON.parse(fs.readFileSync(filePath, {
              encoding: 'utf-8'
@@ -92,7 +94,7 @@ router.patch("/user/update", async (req,res)=>{
     try {
         const payload = req.body;
         await updateUserSchema.validateAsync(payload);
-        const filePath = 'user.json';
+        const filePath =path.join(__dirname, 'user.json');
 
         const allUsers = JSON.parse(fs.readFileSync(filePath, {
             encoding: 'utf-8'
@@ -144,7 +146,7 @@ router.patch("/user/bulk-update", async (req,res)=>{
     try {
         const reqUsers = req.body;
         await bulkUpdateUserSchema.validateAsync(reqUsers);
-        const filePath = 'user.json';
+        const filePath =path.join(__dirname, 'user.json');
 
         const allUsers = JSON.parse(fs.readFileSync(filePath, {
             encoding: 'utf-8'
@@ -191,7 +193,7 @@ router.patch("/user/bulk-update", async (req,res)=>{
 router.delete("/user/delete", async (req,res)=>{
     try {
         const userId = req.body.userId;
-        const filePath = 'user.json';
+        const filePath =path.join(__dirname, 'user.json');
         if (!userId) {
             return res.status(400).send({
                 success: false,
