@@ -7,8 +7,17 @@ const userSchema = joi.object({
     contact: joi.string().required(),
     address: joi.string().required(),
     photoUrl: joi.string(),
+})
+const updateUserSchema = joi.object({
+    id: joi.number().required(),
+    name: joi.string(),
+    gender: joi.string(),
+    contact: joi.string(),
+    address: joi.string(),
+    photoUrl: joi.string(),
 
 })
+
 
 
 const router = express.Router();
@@ -71,6 +80,54 @@ router.post("/user/save", async (req,res)=>{
 })
 
 router.patch("/user/update", async (req,res)=>{
+    try {
+        const payload = req.body;
+        await updateUserSchema.validateAsync(payload);
+        const filePath = 'user.json';
+
+        const allUsers = JSON.parse(fs.readFileSync(filePath, {
+            encoding: 'utf-8'
+        }));
+        const userIndex = allUsers.findIndex(u => u.id === payload.id);
+        if (userIndex > -1) {
+            if (payload.name) {
+                allUsers[userIndex].name = payload.name;
+            }
+            if (payload.address) {
+                allUsers[userIndex].address = payload.address;
+            }
+            if (payload.contact) {
+                allUsers[userIndex].contact = payload.contact;
+            }
+            if (payload.gender) {
+                allUsers[userIndex].gender = payload.gender;
+            }
+            if (payload.photoUrl) {
+                allUsers[userIndex].photoUrl = payload.photoUrl;
+            }
+
+            fs.writeFileSync(filePath, JSON.stringify(allUsers));
+            return res.send({
+                success: true,
+                message: 'user updated successfully',
+                data: allUsers[userIndex],
+            })
+        } else{
+            return res.send({
+                success: false,
+                message: 'Invalid user id',
+            })
+        }
+
+
+    } catch (e) {
+        console.log(e)
+        return res.status(500).send({
+            success: false,
+            message: 'An error occur',
+            data: e
+        })
+    }
 
 })
 
